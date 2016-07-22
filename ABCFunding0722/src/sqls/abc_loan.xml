@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ABCLoan">
+	<insert id="addLoan" parameterType="com.abcfund.model.dto.ABCLoanDto">
+	    INSERT INTO ABC_LOAN
+	    (LOAN_CODE,EMAIL,PROGRESS,CURRENT_MONEY,JOIN_COUNT,ROUND,EMPLOY_TYPE,
+	    SCALE,SERVE,SALARY,LOAN_TYPE,REPAY_TYPE,INTEREST_RATE,LOAN_MONEY,LOAN_DATE,
+	    REPAY,TITLE,FNAME,INTRO,EXPIRY_DATE)
+	    VALUES(SEQ_LOAN.NEXTVAL, #{email}, '신청완료', 0, 0, 0,#{employType},#{scale},#{serve}, #{salary},
+	    #{loanType},#{repayType},#{interestRate},#{loanMoney},#{loanDate},#{repay},#{title},#{fname},
+	    #{intro},#{expiryDate})
+	</insert>
+	
+	<update id="addCreditRating" parameterType="com.abcfund.model.dto.ABCLoanSubDto">
+		UPDATE ABC_MEMBER
+		SET CREDIT_RATING = #{creditRating}
+		WHERE EMAIL = #{email}
+	</update>
+	
+	<select id="getLoanCode" resultType="java.lang.Integer">
+		SELECT MAX(LOAN_CODE)
+		FROM ABC_LOAN
+	</select>
+	
+	<insert id="addJudge" parameterType="java.lang.Integer">
+		INSERT INTO ABC_JUDGE
+		(JUDGE_SEQ,LOAN_CODE,COMMENTARY,RESULT)
+		VALUES (SEQ_JUDGE.NEXTVAL,#{loanCode},'심사평을 입력해주세요.',0)
+	</insert>
+</mapper>

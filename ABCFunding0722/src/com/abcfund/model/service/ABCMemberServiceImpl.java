@@ -1,0 +1,113 @@
+package com.abcfund.model.service;
+
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.abcfund.model.dao.ABCAccountDao;
+import com.abcfund.model.dao.ABCMemberDao;
+import com.abcfund.model.dto.ABCAccountDto;
+import com.abcfund.model.dto.ABCMemberDto;
+import com.abcfund.model.dto.ABCMyInfoDto;
+import com.abcfund.model.dto.ABCMyLoanInfoDto;
+import com.abcfund.util.ABCUtility;
+
+/**
+ * 회원 및 계좌 서비스 클래스
+ * @author 9age
+ *
+ */
+@Service
+public class ABCMemberServiceImpl implements ABCMemberService {
+	/** 회원의 DAO */
+	@Autowired
+	private ABCMemberDao dao;
+	
+	/** 계정의 DAO */
+	@Autowired
+	private ABCAccountDao accDao;
+	
+	/**
+	 * 회원 등록 메서드
+	 * 회원 등록과 동시에 가상계좌도 발급
+	 * @param dto 회원 객체
+	 */
+	@Override
+	public void addMemeber(ABCMemberDto dto) {
+		// 회원 등록
+		dao.addMemeber(dto);
+		
+		/* 가상계좌 생성 및 등록 */
+		StringBuilder accountNo = new StringBuilder();
+		accountNo.append(ABCUtility.randomNumber(3));
+		accountNo.append("-");
+		accountNo.append(ABCUtility.randomNumber(6));
+		accountNo.append("-");
+		accountNo.append(ABCUtility.randomNumber(3));
+		
+		ABCAccountDto accDto = 
+			new ABCAccountDto(accountNo.toString(), dto.getEmail(), dto.getName());		
+		accDao.addAccount(accDto);
+	}
+	
+	/**
+	 * 회원 등급을 미인증에서 일반회원으로 변경하는 메서드
+	 * @param dto 회원 객체
+	 */
+	@Override
+	public void doAuthMember(ABCMemberDto dto) {
+		dao.doAuthCode(dto);
+	}
+	
+	/**
+	 * 로그인하는 메서드
+	 * @param dto 회원 객체
+	 * @return 로그인 성공시 true
+	 */
+	@Override
+	public ABCMemberDto login(ABCMemberDto dto) {
+		return dao.login(dto);
+	}
+	
+	/**
+	 * 내 정보에서 비밀번호 변경할 때 호출하는 메서드
+	 * @param dto 회원 객체
+	 */
+	@Override
+	public void changePwd(ABCMemberDto dto) {
+		dao.changePwd(dto);
+	}
+	
+	/**
+	 * 회원의 인증코드를 변경하는 메서드.
+	 * 비밀번호 찾기로 이메일 인증하려는 경우 사용
+	 * @param dto 회원 객체
+	 */
+	@Override
+	public void changeAuthCode(ABCMemberDto dto) {
+		dao.changeAuthCode(dto);
+	}
+	
+	/**
+	 * 이메일 인증으로 비밀번호를 변경할 때 사용하는 메서드
+	 * @param dto 회원 객체
+	 */
+	@Override
+	public void changePwdOnAuth(ABCMemberDto dto) {
+		dao.changePwdOnAuth(dto);
+	}
+
+	@Override
+	public ABCMyInfoDto getMyInfo(String email) {
+		return dao.getMyInfo(email);
+	}
+
+	@Override
+	public List<ABCMyLoanInfoDto> getMyLoanInfoList(String email) {
+		return dao.getMyLoanInfoList(email);
+	}
+
+}
